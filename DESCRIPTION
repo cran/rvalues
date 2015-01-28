@@ -1,14 +1,14 @@
 Package: rvalues
 Type: Package
-Title: Computation of r-values for ranking in high-dimensional
-        settings.
-Version: 0.2
-Date: 2014-07-23
+Title: R-values for Ranking in High-Dimensional Settings
+Version: 0.3
+Date: 2015-01-27
 Author: Nicholas Henderson and Michael Newton
 Maintainer: Nicholas Henderson <nhenders@stat.wisc.edu>
-Description: This package provides several procedures for computing "r-values". Given a large collection of measurement units, the r-value, r, of a particular unit is a reported percentile that may be interpreted as the smallest percentile at which the unit should be placed in the top r-fraction of units.
+Description: A collection of functions for computing "r-values" from various kinds of user input such as MCMC output or a list of effect size estimates and associated standard errors. Given a large collection of measurement units, the r-value, r, of a particular unit is a reported percentile that may be interpreted as the smallest percentile at which the unit should be placed in the top r-fraction of units.
 License: GPL-2
-Packaged: 2014-07-23 22:26:43 UTC; nhenders
+LazyData: yes
+Packaged: 2015-01-27 00:58:11 UTC; nhenders
 NeedsCompilation: yes
 Repository: CRAN
-Date/Publication: 2014-07-24 08:22:43
+Date/Publication: 2015-01-28 07:44:30

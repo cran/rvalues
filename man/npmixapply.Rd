@@ -26,8 +26,8 @@ npmixapply(object, FUN, ...)
 \code{object} is an object of class "npmix" containing 
 a nonparametric estimate of the mixing distribution \eqn{F}
 in the following two-level sampling model
-\deqn{ X_i|\theta_i ~ p(x|\theta_i,\eta_i),       \theta_i ~ F,
-  i = 1,...,n}
+\eqn{ X_i|\theta_i} ~ \eqn{p(x|\theta_i,\eta_i)}
+and \eqn{\theta_i} ~ \eqn{F} for \eqn{i = 1,...,n}.
   
 Using \code{npmixapply(object, f)}, then returns the 
 posterior expectation of \eqn{f}:
@@ -43,6 +43,7 @@ Nicholas Henderson
 \code{\link{npmle}}
 }
 \examples{
+\dontrun{
 data(hiv)
 npobj <- npmle(hiv, family = gaussian, maxiter = 4)
 
@@ -51,5 +52,6 @@ pmean <- npmixapply(npobj, function(x) { x })
 
 ### Compute post. prob that \theta_i < .1
 pp <- npmixapply(npobj, function(x) { x < .1})
+}
 }
 \keyword{hstat}

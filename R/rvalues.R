@@ -153,6 +153,14 @@ rvalues <- function(data, family = gaussian, hypers = "estimate",
              res$rvalues <- tmp$rvalues 
            }
          },
+         Gamma={
+             ### assumes that X|theta,shapes ~ Gamma(shapes, theta) (scale-form)
+             ### and theta ~ InvGamma(a, b)
+             ### This implies that theta|X,shapes ~ InvGamma(shapes + a, X + b)
+             estimate <- data[,1]
+             nuisance <- data[,2]
+             res <- rvalue.agrid.gg(estimate, nuisance, hypers, alpha.grid, smooth)
+         },
          tdist={
             if(prior=="conjugate") {
                 stop("Must use nonparametric prior with the t family")

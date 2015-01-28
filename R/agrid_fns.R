@@ -135,6 +135,10 @@ rvalue.agrid.bb <- function( binomial.count, binomial.size, hypers,alpha.grid,
   thetaAlpha <- qbeta( alpha.grid, shape1=aa, shape2=bb, lower.tail=FALSE )
   
   V <- matrix(NA, nunits, ngrid )
+  #s1 <- aa + xx
+  #s2 <- bb + (nn - xx)
+  #V <- matrix(pbeta(rep(thetaAlpha,each=nunits), shape1=rep(s1,ngrid), shape2=rep(s2,ngrid), 
+  #                 lower.tail=FALSE),nrow=nunits,ncol=ngrid)
   if(nunits <= ngrid) {
   ## row-wise...
       for( i in 1:nunits)
@@ -249,10 +253,65 @@ rvalue.agrid.pg <- function( poisson.count, mean.mult,hypers,alpha.grid,smooth)
   
   ord <- order( rvals )
   res <- bar[ord,]
-  theta.quantiles <- qgamma(alpha.grid, shape = aa, rate = bb, lower.tail=FALSE)
+  #theta.quantiles <- qgamma(alpha.grid, shape = aa, rate = bb, lower.tail=FALSE)
   aux <- list( V=V,  alpha.grid=alpha.grid, Vmarginals=tmp$lamfun,Vmarginals.smooth=tmp$smoothlamfun,
-               unsorted = bar, hypers=c(aa,bb), theta.quantiles=theta.quantiles,
+               unsorted = bar, hypers=c(aa,bb), theta.quantiles=thetaAlpha,
                prior = "conjugate",family="poisson",smooth=smooth)
   return( list( main=res, aux=aux, rvalues=rvals ) )
 }
+
+rvalue.agrid.gg <- function(x, shapes, hypers, alpha.grid, smooth) {
+  
+  if( length(hypers)==2 & min(hypers) > 0 )  { 
+     aa <- hypers[1] 
+     bb <- hypers[2] 
+  }  
+  if( hypers[1]=="estimate" ) {
+     ## get MLE
+     gethyps <- HyperEstimate(x, shapes, family="Gamma")
+     aa <- gethyps[1]
+     bb <- gethyps[2]
+  }
+  ## Posterior Mean (Need alpha_0 + alpha > 1)
+  thetaPM <- bb/((bb*x + 1)*(aa + shapes - 1))
+  
+  nunits <- length(x)
+  ngrid <- length(alpha.grid)
+  
+  thetaAlpha.inv <- qgamma(alpha.grid, shape=aa, scale=bb)
+  
+  V <- matrix(NA, nunits, ngrid )
+  ## row-wise...
+  if(nunits <= ngrid) {
+      for( i in 1:nunits) {
+         ss <- aa + shapes[i]
+         rr <- bb + x[i] 
+         V[i,] <- pgamma( thetaAlpha.inv, shape=ss, rate = rr)
+      }
+  }
+  else {
+      for(j in 1:ngrid) {
+          ss <- aa + shapes
+          rr <- bb + x
+          V[,j] <- pgamma( thetaAlpha.inv[j], shape=ss, rate = rr)
+      }
+  }
+  tmp <- rvalueGuts(dat=cbind(x,shapes), alpha.grid=alpha.grid, V=V, vfun=vfun.gg, 
+                    hypers=c(aa,bb),smooth=smooth)
+  rvals <- tmp$rvals
+  lamfun <- tmp$lamfun
+  bar <- data.frame(RValue=rvals, RV.rank=rank(rvals),
+                    MLE.rank=rank(-x/shapes), PM.rank=rank(-thetaPM),
+                    xx=x, shapes=shapes, PostMean=thetaPM )
+  
+  ord <- order( rvals )
+  res <- bar[ord,]
+  aux <- list(V=V, alpha.grid=alpha.grid, Vmarginals=tmp$lamfun,Vmarginals.smooth=tmp$smoothlamfun,
+               unsorted = bar, hypers=c(aa,bb), theta.quantiles=1/thetaAlpha.inv,
+               prior = "conjugate",family="Gamma",smooth=smooth)
+  return( list( main=res, aux=aux, rvalues=rvals ) )
+}
+
+
+
 

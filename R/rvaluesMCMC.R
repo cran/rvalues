@@ -68,7 +68,7 @@ rvaluesMCMC <- function(output, qtheta, alpha.grid = NULL, ngrid = NULL,
     if(smooth=="none") {
         cc2 <- approxfun(alpha.grid, lam, yleft = 1, yright = 0)
         lam.smooth.eval <- cc2(alpha.grid)
-        lam.smooth <- approxfun( c(0,cc2$x,1), c(1,cc2$y,0))
+        lam.smooth <- approxfun( c(0,alpha.grid,1), c(1,lam.smooth.eval,0))
     }
     else {
         cc2 <- supsmu( alpha.grid, lam, bass= smooth )

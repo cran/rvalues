@@ -16,9 +16,6 @@ gene expression measurements on 7680 genes across 8 samples.
     \item{\code{std.err}}{standard errors associated with effect size estimates}
   }
 }
-\source{
-\url{http://statweb.stanford.edu/~omkar/monograph/data}
-}
 \references{
 van't Wout, et. al. (2003), Cellular gene 
 expression upon human immuno-deficiency virus type 1 infection of

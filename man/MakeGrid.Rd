@@ -33,7 +33,7 @@ the largest grid point; must be less than one
 If \code{nunits} \eqn{\le 1000}, the default number of grid points is
 equal to \code{nunits}. When \code{nunits} \eqn{> 1000}, the default 
 number of grid points is determined by 
-\deqn{1000 + 25*log(nunits - 1000)*(nunits - 1000)^(1/4)}.
+\deqn{1000 + 25*log(nunits - 1000)*(nunits - 1000)^{1/4}}.
 }
 \value{
 A vector of grid points in (0,1).

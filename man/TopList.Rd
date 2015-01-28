@@ -8,7 +8,7 @@ Returns a list of the top units ranked according
 to "r-value" or another specified statistic.
 }
 \usage{
-TopList(object, topnum = 10, sorted.by = "RValue")
+TopList(object, topnum = 10, sorted.by = c("RValue","PostMean","MLE","PVal"))
 }
 \arguments{
   \item{object}{

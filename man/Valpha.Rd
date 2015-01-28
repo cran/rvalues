@@ -1,7 +1,7 @@
 \name{Valpha}
 \alias{Valpha}
 \title{
-R-values from posterior tail probabilities.
+R-values from a matrix of posterior tail probabilities.
 }
 \description{
 Computes r-values directly from a "Valpha" matrix V where each

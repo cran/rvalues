@@ -1,22 +1,12 @@
+TopList <- function(object, topnum=10, sorted.by = c("RValue","PostMean","MLE","PVal"))  {
+  ####  Example usage:
+  ####  toplist(rvs,topnum=15,sorted.by="MLE")
 
-TopList <- function(object,topnum=10,sorted.by="RValue")  {
-    ####  Example usage:
-    ####  toplist(rvs,topnum=15,sorted.by="MLE")
-
-    if(sorted.by=="RValue")  {
-        ans <- object$main[1:topnum,]
-    }
-    else if(sorted.by=="PostMean") {
-        object$main <- object$main[order(object$main$PM.rank),]
-        ans <- object$main[1:topnum,]
-    }
-    else if(sorted.by=="MLE") {
-        object$main <- object$main[order(object$main$MLE.rank),]
-        ans <- object$main[1:topnum,]
-    }
-    else if(sorted.by=="PVal") {
-        object$main <- object$main[order(object$main$PVal.rank),]
-        ans <- object$main[1:topnum,]
-    }
-    return(ans)
+  sorted.by <- match.arg(sorted.by)
+  om <- object$main
+  switch(sorted.by,
+         RValue = head(om,topnum),
+         PostMean = om[order(om$PM.rank)[1:topnum],],
+         MLE = om[order(om$MLE.rank)[1:topnum],],
+         PVal = om[order(om$PVal.rank)[1:topnum],])
 }
