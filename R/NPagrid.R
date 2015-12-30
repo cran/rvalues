@@ -28,7 +28,7 @@ NPagrid <- function(estimate, nuisance, theta.alpha, theta.probs,
   nunits <- length(estimate)
   ngrid <- length(alpha.grid)
   
-  rvalues <- mvec <- numeric(nunits)
+  rvalues <- mvec <- mmvec <- numeric(nunits)
   
   if(!is.null(df)) {
       if(length(df) == 1) {
@@ -37,53 +37,52 @@ NPagrid <- function(estimate, nuisance, theta.alpha, theta.probs,
   }
   switch(family,
          gaussian={
-             #tmp <- PostProbNorm(estimate, nuisance, theta.alpha, theta.probs)
-             #PP <- tmp$postprobs
-             #print(cumsum(PP[4637,]))
-             #V <- matrix(0, nrow = nunits, ncol = ngrid)
-             #for(i in 1:nunits) {
-             #     a <- cumsum(PP[i,])
-             #     V[i,] <- a
-             #}
+             tmp <- PostProbNorm(estimate, nuisance, theta.alpha, theta.probs)
+             V <- matrix(0, nrow = nunits, ncol = ngrid)
              for(i in 1:nunits) {
-                  mvec[i] <- sum(dnorm(estimate[i],mean=theta.alpha,sd=nuisance[i])*theta.probs)
+                  V[i,] <- cumsum(tmp$postprobs[i,])
              }
-             V <- matrix(0,nrow=nunits,ncol=ngrid)
-             V[,1] <- (theta.probs[1]/mvec)*(dnorm(estimate,mean=theta.alpha[1],sd=nuisance))
-             for(j in 2:ngrid)  {
-                 V[,j] <- V[,j-1] + (theta.probs[j]/mvec)*(dnorm(estimate,mean=theta.alpha[j],sd=nuisance))
-             }    
+            # for(i in 1:nunits) {
+            #      mvec[i] <- sum(dnorm(estimate[i],mean=theta.alpha,sd=nuisance[i])*theta.probs)
+            # }
+            # V <- matrix(0,nrow=nunits,ncol=ngrid)
+            # V[,1] <- (theta.probs[1]/mvec)*(dnorm(estimate,mean=theta.alpha[1],sd=nuisance))
+            # for(j in 2:ngrid)  {
+            #     V[,j] <- V[,j-1] + (theta.probs[j]/mvec)*(dnorm(estimate,mean=theta.alpha[j],sd=nuisance))
+            # }    
          },
          poisson={
-             for(i in 1:nunits) {
-                 mvec[i] <- sum(dpois(estimate[i],lambda=nuisance[i]*theta.alpha)*theta.probs)
-             }
+             tmp <- PostProbPois(estimate, nuisance, theta.alpha, theta.probs)
+             #PP <- tmp$postprobs
              V <- matrix(0,nrow=nunits,ncol=ngrid)
-             V[,1] <- (theta.probs[1]/mvec)*dpois(estimate,lambda=nuisance*theta.alpha[1])
-             for(j in 2:ngrid)  {
-                 V[,j] <- V[,j-1] + (theta.probs[j]/mvec)*dpois(estimate,lambda=nuisance*theta.alpha[j])
+             ### theta.alpha goes from large to small
+             for(i in 1:nunits) {
+                 #mvec[i] <- sum(dpois(estimate[i],lambda=nuisance[i]*theta.alpha)*theta.probs)
+                 V[i,] <- cumsum(tmp$postprobs[i,])
              }
+
          },
          binomial={
+             tmp <- PostProbBinomial(estimate, nuisance, theta.alpha, theta.probs)
+             V <- matrix(0, nrow = nunits, ncol = ngrid)
              for(i in 1:nunits) {
-                 mvec[i] <- sum(dbinom(estimate[i],size=nuisance[i],prob=theta.alpha)*theta.probs)
-              }
-             
-              V <- matrix(0,nrow=nunits,ncol=ngrid)
-              V[,1] <- (theta.probs[1]/mvec)*dbinom(estimate,size=nuisance,prob=theta.alpha[1])
-              for(j in 2:ngrid)  {
-                  V[,j] <- V[,j-1] + (theta.probs[j]/mvec)*dbinom(estimate,size=nuisance,prob=theta.alpha[j])
-              }
+                  V[i,] <- cumsum(tmp$postprobs[i,])
+             }
          },
          tdist={
+              tmp <- PostProbT(estimate, nuisance, df, theta.alpha, theta.probs)
+              V <- matrix(0, nrow = nunits, ncol = ngrid)
               for(i in 1:nunits) {
-                  mvec[i] <- sum((dt((estimate[i] - theta.alpha)/nuisance[i],df=df[i])/nuisance[i])*theta.probs)
-              }
-              V <- matrix(0,nrow=nunits,ncol=ngrid)
-              V[,1] <- (theta.probs[1]/mvec)*(dt((estimate - theta.alpha[1])/nuisance,df=df)/nuisance)
-              for(j in 2:ngrid)  {
-                  V[,j] <- V[,j-1] + (theta.probs[j]/mvec)*(dt((estimate - theta.alpha[j])/nuisance,df=df)/nuisance)
-              }
+                   V[i,] <- cumsum(tmp$postprobs[i,])
+              }      
+              #for(i in 1:nunits) {
+              #    mvec[i] <- sum((dt((estimate[i] - theta.alpha)/nuisance[i],df=df[i])/nuisance[i])*theta.probs)
+              #}
+              #V <- matrix(0,nrow=nunits,ncol=ngrid)
+              #V[,1] <- (theta.probs[1]/mvec)*(dt((estimate - theta.alpha[1])/nuisance,df=df)/nuisance)
+              #for(j in 2:ngrid)  {
+              #    V[,j] <- V[,j-1] + (theta.probs[j]/mvec)*(dt((estimate - theta.alpha[j])/nuisance,df=df)/nuisance)
+              #}
          },
    )
   
@@ -93,9 +92,9 @@ NPagrid <- function(estimate, nuisance, theta.alpha, theta.probs,
   }
 
   if(smooth=="none")  {
-     cc2 <- approxfun(alpha.grid,lam,yleft=1,yright=0)
-     lam.smooth.eval <- cc2(alpha.grid)
-     lam.smooth <- approxfun( c(0,cc2$x,1), c(1,cc2$y,0))
+     #cc2 <- approxfun(alpha.grid,lam,yleft=1,yright=0)
+     lam.smooth.eval <- lam
+     lam.smooth <- approxfun( c(0,alpha.grid,1), c(1,lam,0))
   }
   else {
      cc2 <- supsmu(alpha.grid, lam, bass = smooth)
@@ -105,8 +104,24 @@ NPagrid <- function(estimate, nuisance, theta.alpha, theta.probs,
       
   ### For each row of Valpha, determine the index at which
   ### Valpha[i,] intersects lambda_{\alpha}
-  cut.ind <- VVcut(V, lam.smooth.eval, nrow(V), length(lam))  
-  rvalues <- alpha.grid[cut.ind]
+  #cut.ind <- VVcut(V, lam.smooth.eval, nrow(V), length(lam), alpha.grid) 
+  rvalues <- VVcut(V, lam.smooth.eval, nrow(V), length(lam), alpha.grid) 
+  ## Interpolation:
+  #rvalues <- rep(0,nunits)
+  #for(j in 1:nunits) {
+     # print(cut.ind[j])
+  #    if(cut.ind[j] !=1 ) {
+  #         g0 = V[j,cut.ind[j] - 1] - lam.smooth.eval[cut.ind[j]-1] 
+  #         gdelt = V[j,cut.ind[j]] - lam.smooth.eval[cut.ind[j]] - g0
+  #         slop = (alpha.grid[cut.ind[j]] - alpha.grid[cut.ind[j] - 1])/gdelt
+  #         rvalues[j] = alpha.grid[cut.ind[j] - 1] - g0*slop
+  #    }
+  #    else {
+  #        rvalues[j] <- alpha.grid[1]
+  #     }
+  #} 
+  #rvalues <- alpha.grid[cut.ind]
+  #rvalues <- cut.ind
 
   ans <- list()
   ans$rvalues <- rvalues
@@ -116,3 +131,5 @@ NPagrid <- function(estimate, nuisance, theta.alpha, theta.probs,
   ans$V <- V
   return(ans)
 }
+
+

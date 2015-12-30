@@ -76,7 +76,7 @@ rvalue.agrid.nn <- function( MLE.local, SE.local,hypers,alpha.grid,smooth)
                      PVal = pnorm( MLE.local/SE.local, lower.tail=FALSE ),
                      PVal.rank = rank( -MLE.local/SE.local ) )  
   
-  ord <- order( rvals )
+  ord <- order( rvals, -thetaPM )
   res <- bar[ord,]
   
   theta.quantiles <- qnorm(alpha.grid,mean=mu,sd=sqrt(tau2),lower.tail=FALSE)
@@ -166,7 +166,7 @@ rvalue.agrid.bb <- function( binomial.count, binomial.size, hypers,alpha.grid,
                      xx=xx, nn=nn,
                      PostMean=thetaPM )
   
-  ord <- order( rvals )
+  ord <- order( rvals, -thetaPM )
   res <- bar[ord,]
   
   theta.quantiles <- qbeta(alpha.grid,shape1=aa,shape2=bb,lower.tail=FALSE)
@@ -251,7 +251,7 @@ rvalue.agrid.pg <- function( poisson.count, mean.mult,hypers,alpha.grid,smooth)
                      xx=xx, eta=eta,
                      PostMean=thetaPM )
   
-  ord <- order( rvals )
+  ord <- order( rvals, -thetaPM )
   res <- bar[ord,]
   #theta.quantiles <- qgamma(alpha.grid, shape = aa, rate = bb, lower.tail=FALSE)
   aux <- list( V=V,  alpha.grid=alpha.grid, Vmarginals=tmp$lamfun,Vmarginals.smooth=tmp$smoothlamfun,
@@ -304,7 +304,7 @@ rvalue.agrid.gg <- function(x, shapes, hypers, alpha.grid, smooth) {
                     MLE.rank=rank(-x/shapes), PM.rank=rank(-thetaPM),
                     xx=x, shapes=shapes, PostMean=thetaPM )
   
-  ord <- order( rvals )
+  ord <- order( rvals, -thetaPM )
   res <- bar[ord,]
   aux <- list(V=V, alpha.grid=alpha.grid, Vmarginals=tmp$lamfun,Vmarginals.smooth=tmp$smoothlamfun,
                unsorted = bar, hypers=c(aa,bb), theta.quantiles=1/thetaAlpha.inv,

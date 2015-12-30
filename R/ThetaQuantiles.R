@@ -19,11 +19,10 @@ ThetaQuantiles <- function(FF, alpha.grid, lbd, ubd) {
          ff <- function(x, alpha)  {
               return(1 - FF(x) - alpha)
          }
-         
          ngrid <- length(alpha.grid)
-         #qtheta <- rep(0, ngrid)
          qtheta <- mroot(ff, lower=rep(lbd, ngrid), upper=rep(ubd, ngrid), 
                          alpha = alpha.grid)$root 
+
          #for(i in 1:ngrid)  {
          #    qtheta[i] <- uniroot(ff, lower = lbd, upper = ubd, alpha = alpha.grid[i])$root
          #}

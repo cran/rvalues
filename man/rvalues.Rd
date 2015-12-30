@@ -14,7 +14,7 @@ in the listed references.
 }
 \usage{
 rvalues(data, family = gaussian, hypers = "estimate", prior = "conjugate",
-       alpha.grid = NULL, ngrid = NULL, smooth = 0, control = list()) 
+       alpha.grid = NULL, ngrid = NULL, smooth = "none", control = list()) 
 }
 \arguments{
   \item{data}{A data frame or a matrix with the number of rows equal to the number of sampling units. 
@@ -78,7 +78,7 @@ the rankings from several other common procedures}
 \item{rvalues}{a vector of r-values}
 }
 \references{
-Henderson, N.C. and Newton, M.A. (2014) \emph{Making the Cut: Improved Ranking and Selection 
+Henderson, N.C. and Newton, M.A. (2015) \emph{Making the Cut: Improved Ranking and Selection 
 for Large-Scale Inference.} 
 \url{http://arxiv.org/abs/1312.5776}
 }
@@ -104,7 +104,7 @@ flu.rvals$rvalues[fig_indices]
 ### Gaussian sampling distribution with nonparametric prior
 ### Use a maximum of 5 iterations for the nonparam. estimate
 data(hiv)
-hiv.rvals <- rvalues(hiv, prior = "nonparametric", control = list(maxiter=5))
+hiv.rvals <- rvalues(hiv, prior = "nonparametric")
 }
 }
 \keyword{hstat}

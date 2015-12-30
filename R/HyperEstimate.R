@@ -35,7 +35,8 @@ HyperEstimate <- function(estimate, nuisance, family) {
         b0 <- a0/( sum(estimate)/sum(nuisance) )   ## simple method of moments starter
         ## get MLE
         fit <- nlminb( start=c(a0,b0), objective=pgnll, gradient=pgnll.g,
-                       x=estimate, eta=nuisance , lower=c(1,1) )  ## a constraint, could be lifted.
+                       x=estimate, eta=nuisance , lower=c(.1,.1) )  ## a constraint, could be lifted.
+        ### maybe think about one-dimensional optimization with profile likelihood.
         hypers <- c(fit$par[1],fit$par[2])    
     }
     else if(family=="Gamma") {

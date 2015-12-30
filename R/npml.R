@@ -77,8 +77,13 @@ npmle <- function(data, family = gaussian, maxiter = 500, tol = 1e-4,
   mix.prop <- mix.results$mix.prop[o]
             
   if(smooth)  {
-       smooth.cdf <- supsmu(support[-length(support)],
-                            qnorm(cumsum(mix.prop[-length(support)])),bass=bass)
+       ### only do the smoothing on the transformed values where prelim.cdf is between 0 and 1
+       prelim.cdf <- cumsum(mix.prop)
+       oo <- (prelim.cdf > 0) & (prelim.cdf < 1)
+       mp <- cumsum(mix.prop[oo])
+       ms <- support[oo]
+       
+       smooth.cdf <- supsmu(ms, qnorm(mp),bass=bass)
        Fhat <- approxfun(smooth.cdf$x,pnorm(smooth.cdf$y),yleft=0,yright=1)
                 
        support <- seq(from = min(support),to = max(support),
@@ -96,6 +101,10 @@ npmle <- function(data, family = gaussian, maxiter = 500, tol = 1e-4,
        ## as a step function
        Fhat <- stepfun(support,c(0,cumsum(mix.prop)))
   }
+  #tmp <- PostProbPois(x = data[,1], eta = data[,2],support,mix.prop)
+  #PP <- tmp$postprobs
+  ### might do this for each family separately
+  
   fhat <- density(support, weights = mix.prop)
   fhat <- approxfun(fhat$x, fhat$y)
   
@@ -110,6 +119,8 @@ npmle <- function(data, family = gaussian, maxiter = 500, tol = 1e-4,
   ans$fhat <- fhat
   ans$data <- data
   ans$family <- family
+  ans$post.mean <- mix.results$post.mean
+  #ans$post.prob <- tmp$postprobs
   
   return(ans)
 }

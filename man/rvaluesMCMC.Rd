@@ -7,7 +7,7 @@ R-values from MCMC output.
 Returns r-values from an array of MCMC output.
 }
 \usage{
-rvaluesMCMC(output, qtheta, alpha.grid = NULL, ngrid = NULL, smooth = 0)
+rvaluesMCMC(output, qtheta, alpha.grid = NULL, ngrid = NULL, smooth = "none")
 }
 \arguments{
   \item{output}{
@@ -41,7 +41,7 @@ the rankings from several other common procedures}
 \item{rvalues}{a vector of r-values}
 }
 \references{
-Henderson, N.C. and Newton, M.A. (2014) Making the Cut: Improved Ranking and Selection 
+Henderson, N.C. and Newton, M.A. (2015) Making the Cut: Improved Ranking and Selection 
 for Large-Scale Inference. 
 \url{http://arxiv.org/abs/1312.5776}
 }

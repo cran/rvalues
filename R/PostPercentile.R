@@ -48,6 +48,7 @@ PostPercentile <- function(object)  {
         }
     }
     else if(object$aux$prior=="nonparametric")  {
+         ## object$aux$prior is null, for example if using the Valpha() function
          
          ### get distances between points on the alpha grid.
          delta.alpha <- c(object$aux$alpha.grid[1],diff(object$aux$alpha.grid))

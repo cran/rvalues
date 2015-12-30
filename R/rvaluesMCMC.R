@@ -1,6 +1,6 @@
 
 rvaluesMCMC <- function(output, qtheta, alpha.grid = NULL, ngrid = NULL,
-                        smooth = 0)  {
+                        smooth = "none")  {
   
   ##########################################################################
   ##  Last edited: 7/10/14
@@ -77,15 +77,15 @@ rvaluesMCMC <- function(output, qtheta, alpha.grid = NULL, ngrid = NULL,
     }
     ### For each row of Valpha, determine the index at which
     ### Valpha[i,] intersects lambda_{\alpha}
-    cut.ind <- VVcut(V, lam.smooth.eval, nrow(V), ngrid)
+    rvalues <- VVcut(V, lam.smooth.eval, nrow(V), ngrid, alpha.grid)
     
-    rvalues <- alpha.grid[cut.ind]
+    #rvalues <- alpha.grid[cut.ind]
  
     ### add stuff when returning ...
     thetaPM <- rowMeans(output)
     ans <- list()
     class(ans) <- "rvals"
-    ord <- order( rvalues )
+    ord <- order( rvalues, -thetaPM )
     bar <- data.frame( RValue=rvalues, RV.rank=rank(rvalues),
                      PostMean=thetaPM,PM.rank=rank(-thetaPM))
     ans$main <- bar[ord,]

@@ -1,11 +1,11 @@
 rvalues <- function(data, family = gaussian, hypers = "estimate",
                     prior = "conjugate", alpha.grid = NULL, ngrid = NULL,
-                    smooth = 0, control = list())  {
+                    smooth = "none", control = list())  {
   
   mod <- match.call(expand.dots=FALSE)
   if(is.null(alpha.grid)) {
     ### initialize alpha_grid if not entered by user
-    alpha.grid <- MakeGrid(nunits=nrow(data),type="log",ngrid=ngrid)
+    alpha.grid <- MakeGrid(nunits = nrow(data), type = "log", ngrid = ngrid)
   }
   if(!is.null(alpha.grid)) {
     ngrid <- length(alpha.grid)
@@ -34,7 +34,7 @@ rvalues <- function(data, family = gaussian, hypers = "estimate",
   }
  
   ###  setup control parameters
-  con <- list(tol = 1e-04, maxiter = 500, smooth = TRUE)
+  con <- list(tol = 1e-04, maxiter = 500, smooth = FALSE)
   con[(namc <- names(control))] <- control
   
   estimate <- data[,1]
@@ -54,7 +54,7 @@ rvalues <- function(data, family = gaussian, hypers = "estimate",
              npfit <- npmle(data,family=gaussian,maxiter=con$maxiter,
                             tol=con$tol,smooth=con$smooth)
              ###  posterior mean
-             PM <- npmixapply(npfit,function(x) { x })
+             PM <- npfit$post.mean
              
              lb <- min(npfit$support) - .01
              theta.alpha <- ThetaQuantiles(npfit$Fhat, alpha.grid, lbd = lb, 
@@ -69,7 +69,7 @@ rvalues <- function(data, family = gaussian, hypers = "estimate",
                                PVal = pnorm( estimate/nuisance, lower.tail=FALSE ),
                                PVal.rank = rank( -estimate/nuisance ) )  
   
-             ord <- order(tmp$rvalues )
+             ord <- order(tmp$rvalues, -PM )
              sorted.dframe <- bar[ord,]
              
              res <- list()
@@ -77,7 +77,7 @@ rvalues <- function(data, family = gaussian, hypers = "estimate",
              res$aux <- list(mix.prop=npfit$mix.prop,support=npfit$support,mixcdf=npfit$Fhat,
                              alpha.grid=tmp$alpha,Vmarginals=tmp$lam,Vmarginals.smooth=tmp$lamsmooth,
                              V=tmp$V,unsorted=bar,prior="nonparametric",family="gaussian",
-                             smooth=smooth)
+                             smooth=smooth, conv=npfit$conv)
               res$rvalues <- tmp$rvalues
            }
          },
@@ -90,21 +90,20 @@ rvalues <- function(data, family = gaussian, hypers = "estimate",
            else {
              npfit <- npmle(data,family=poisson,maxiter=con$maxiter,
                             tol=con$tol,smooth=con$smooth)
-             PM <- npmixapply(npfit,function(x) { x })
+             ### should this be on the log scale?
+             PM <- npfit$post.mean
              
-             lb <- min(npfit$support) - .01
+             lb <- exp(log(min(npfit$support)) - 2)
              theta.alpha <- ThetaQuantiles(npfit$Fhat, alpha.grid, lbd = lb, 
                                           ubd = max(npfit$support))
-             
              theta.probs <- -diff(c(1,npfit$Fhat(theta.alpha)))
              tmp <- NPagrid(estimate = data[,1], nuisance = data[,2], theta.alpha, 
                             theta.probs, alpha.grid, smooth, family = "poisson")
-             
              bar <- data.frame( RValue=tmp$rvalues, RV.rank=rank(tmp$rvalues),
                                 MLE.rank=rank(-estimate/nuisance), PM.rank=rank(-PM),
                                 xx = estimate, eta = nuisance, PostMean = PM)  
   
-             ord <- order(tmp$rvalues )
+             ord <- order(tmp$rvalues, -PM )
              sorted.dframe <- bar[ord,]
              
              res <- list()
@@ -112,7 +111,7 @@ rvalues <- function(data, family = gaussian, hypers = "estimate",
              res$aux <- list(mix.prop=npfit$mix.prop,support=npfit$support,mixcdf=npfit$Fhat,
                              alpha.grid=tmp$alpha,Vmarginals=tmp$lam,Vmarginals.smooth=tmp$lamsmooth,
                              V=tmp$V,unsorted=bar,prior="nonparametric",family="poisson",
-                             smooth=smooth)
+                             smooth=smooth, conv=npfit$conv)
              res$rvalues <- tmp$rvalues
            }
          },
@@ -125,8 +124,12 @@ rvalues <- function(data, family = gaussian, hypers = "estimate",
            else if(prior=="nonparametric") {
              npfit <- npmle(data,family=binomial,maxiter=con$maxiter,
                             tol=con$tol,smooth=con$smooth)
-             PM <- npmixapply(npfit,function(x) { x })
-             lb <- min(npfit$support) - .01
+             #PM <- npmixapply(npfit,function(x) { x })
+             PM <- npfit$post.mean
+             
+             min.sup <- log(min(npfit$support)) - log(1 - min(npfit$support))
+             lb <- exp(min.sup - 2)/( 1 + exp(min.sup - 2))
+             
              theta.alpha <- ThetaQuantiles(npfit$Fhat, alpha.grid, lbd = lb, 
                                           ubd = max(npfit$support))
              
@@ -141,7 +144,7 @@ rvalues <- function(data, family = gaussian, hypers = "estimate",
                                MLE.rank=rank(-mle), PM.rank=rank(-PM),xx=estimate,
                                nn=nuisance,PostMean=PM )  
   
-             ord <- order(tmp$rvalues )
+             ord <- order(tmp$rvalues, -PM )
              sorted.dframe <- bar[ord,]
              
              res <- list()
@@ -149,7 +152,7 @@ rvalues <- function(data, family = gaussian, hypers = "estimate",
              res$aux <- list(mix.prop=npfit$mix.prop,support=npfit$support,mixcdf=npfit$Fhat,
                              alpha.grid=tmp$alpha,Vmarginals=tmp$lam,Vmarginals.smooth=tmp$lamsmooth,
                              V=tmp$V,unsorted=bar,prior="nonparametric",family="binomial",
-                             smooth=smooth)
+                             smooth=smooth, conv=npfit$conv)
              res$rvalues <- tmp$rvalues 
            }
          },
@@ -168,7 +171,9 @@ rvalues <- function(data, family = gaussian, hypers = "estimate",
             else if(prior=="nonparametric") {
                 npfit <- npmle(data,family=family,maxiter=con$maxiter,
                             tol=con$tol,smooth=con$smooth)
-                PM <- npmixapply(npfit,function(x) { x })
+                #PM <- npmixapply(npfit,function(x) { x })
+                PM <- npfit$post.mean
+                
                 lb <- min(npfit$support) - .01
                 theta.alpha <- ThetaQuantiles(npfit$Fhat, alpha.grid, lbd = lb, 
                                                ubd = max(npfit$support))
@@ -182,7 +187,7 @@ rvalues <- function(data, family = gaussian, hypers = "estimate",
                                PVal = pt( estimate/nuisance, df=family$df, lower.tail=FALSE),
                                PVal.rank = rank( -estimate/nuisance ) )  
   
-                 ord <- order(tmp$rvalues )
+                 ord <- order(tmp$rvalues, -PM )
                  sorted.dframe <- bar[ord,]
              
                  res <- list()
@@ -191,7 +196,7 @@ rvalues <- function(data, family = gaussian, hypers = "estimate",
                              mixcdf=npfit$Fhat,alpha.grid=tmp$alpha,
                              Vmarginals=tmp$lam,Vmarginals.smooth=tmp$lamsmooth,
                              V=tmp$V,unsorted=bar,prior="nonparametric",
-                             family="tdist", df=family$df, smooth = smooth)
+                             family="tdist", df=family$df, smooth = smooth, conv=npfit$conv)
                  res$rvalues <- tmp$rvalues
             }
          },
@@ -222,8 +227,8 @@ print.rvals <- function(x, ...) {
 ################################################################################
 
 
-VVcut <- function(Vmat, lam_fun, nunits, ngrid) {
-   res <- .Call("Vcut",Vmat,lam_fun,as.integer(nunits),as.integer(ngrid),PACKAGE="rvalues");
+VVcut <- function(Vmat, lam_fun, nunits, ngrid, alpha.grid) {
+   res <- .Call("Vcut",Vmat,lam_fun,as.integer(nunits),as.integer(ngrid),alpha.grid,PACKAGE="rvalues");
    return(res) 
 }
 
