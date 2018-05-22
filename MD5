@@ -1,12 +1,12 @@
-add7af32b6775b70919391efacda3b62 *DESCRIPTION
-08d8fbc5bc069433f7c4c0c1d459ad46 *NAMESPACE
+02f6b43bdcba543a9faacc1adfefb764 *DESCRIPTION
+27a3cb646b91a922934009b5bb3c1540 *NAMESPACE
 0ca917db31c7825b92e95d013f378440 *R/FDRCurve.R
 090df72a06af934ac7cc07bb2029876c *R/HyperEstimate.R
-3239821e753232cdb0023fcde9bc0073 *R/MakeGrid.R
+dc4b4a9c26b695a1010bc4c35fb439bd *R/MakeGrid.R
 bb0b8aee0b0dfb9e35136447353e2ee7 *R/NPagrid.R
 fba38cd9f430271d4632e7c9eb3bf1f8 *R/NPestBinomial.R
 b6b53215e0967b8da31f3d59068380b2 *R/NPestNormal.R
-00b6a47d05f5341d2000d3c5318a3827 *R/NPestPoisson.R
+4de163a7d74e61babc798bbb3e59fe89 *R/NPestPoisson.R
 d19dfef0e02973cfa44712e02545df51 *R/NPestT.R
 9f642b0822db6d6c19ee441efe1df8f0 *R/OverlapCurve.R
 2e7e258d32d43b3429cab63e40e19d42 *R/PostPercentile.R
@@ -15,7 +15,7 @@ d19dfef0e02973cfa44712e02545df51 *R/NPestT.R
 2d6fb63528e557f6bab0bb994e562b31 *R/TopList.R
 fa525d0c6374cdb7073106c7e84ac118 *R/Valpha.R
 5927e9f0fba0da2e9fdaed9884b74518 *R/Vplot.R
-0bfb7610727fd45655e536db20964fa4 *R/agrid_fns.R
+a42ddf8820fcafdb9b576902cc567296 *R/agrid_fns.R
 2808b1554cd763dbe311e297c94ee199 *R/mroot.R
 9ae3585e99d93bbce556b0e7a6f731a7 *R/npmixapply.R
 95ca8261bac4228bf9df104c24d0e70d *R/npml.R
@@ -52,7 +52,8 @@ c3767a004e39ad41277bc5e90de5779d *man/npmle.Rd
 b078f59380bcb3676787dbc3c67ff311 *man/rvalues.Rd
 05fd0612da50ecc629e9d8831fe7861f *man/rvaluesMCMC.Rd
 6e4825e8f47b548d87ff337bfb8f3571 *man/tdist.Rd
-0abef572ba020d154bbf5b22413a114d *src/Vcut.c
+fee4b546bf1ed722178b6195b1d5823b *src/Vcut.c
+ce024e72400437a26c1a7591a7adf0cb *src/init.c
 1d7dc3da7718fb91ef599b3ded34a5c4 *src/postprobT.c
 18b863dc6356d902a79a0b5f82e5a62d *src/postprobbinomial.c
 5bf19c50eeecd704e6b1acde177c5a89 *src/postprobnormal.c
